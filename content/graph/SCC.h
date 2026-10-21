@@ -15,27 +15,38 @@
  */
 #pragma once
 
-vi val, comp, z, cont;
-int Time, ncomps;
-template<class G, class F> int dfs(int j, G& g, F& f) {
-	int low = val[j] = ++Time, x; z.push_back(j);
-	for (auto e : g[j]) if (comp[e] < 0)
-		low = min(low, val[e] ?: dfs(e,g,f));
+vector<vector<int>> adj;
+vector<int> disc, low, scc;
+vector<bool> isinst;
+stack<int> st;
 
-	if (low == val[j]) {
-		do {
-			x = z.back(); z.pop_back();
-			comp[x] = ncomps;
-			cont.push_back(x);
-		} while (x != j);
-		f(cont); cont.clear();
-		ncomps++;
-	}
-	return val[j] = low;
+int timer, scc_int;
+
+void dfs(int cur) {
+    disc[cur] = low[cur] = ++timer;
+    st.push(cur); isinst[cur] = 1;
+    for (auto it : adj[cur]) {
+        if (disc[it] == 0) {
+            dfs(it); low[cur] = min(low[cur], low[it]);
+        } else if (isinst[it]) {
+            low[cur] = min(low[cur], disc[it]);
+        }
+    }
+    if (low[cur] == disc[cur]) {
+        while (true) {
+            int v = st.top(); st.pop();
+            isinst[v] = 0;
+            scc[v] = scc_int;
+            if (v == cur) break;
+        } scc_int++;
+    }
 }
-template<class G, class F> void scc(G& g, F f) {
-	int n = sz(g);
-	val.assign(n, 0); comp.assign(n, -1);
-	Time = ncomps = 0;
-	rep(i,0,n) if (comp[i] < 0) dfs(i, g, f);
+void init_scc(int n) {
+    disc.assign(n, 0), low.assign(n, 0), scc.assign(n, -1);
+    isinst.assign(n, false);
+    while (!st.empty()) st.pop();
+    timer = scc_int = 0;
+}
+void find_scc(int n) {
+    for(int i = 0; i < n; i++){ if(disc[i] == 0) dfs(i); }
 }

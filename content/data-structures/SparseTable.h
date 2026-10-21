@@ -16,7 +16,7 @@
 vector<vector<ll>> st;
 vector<int> lg;
 
-void build(vector<ll>& a) {
+void build(vector<ll>& a{
     int n = sz(a), K = 32 - __builtin_clz(n);
     st.assign(K, vector<ll>(n));
     lg.assign(n + 1, 0);

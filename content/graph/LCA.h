@@ -11,26 +11,49 @@
  */
 #pragma once
 
-#include "../data-structures/RMQ.h"
+int LOG;
+vector<vi> adj, up;
+vi depth;
 
-struct LCA {
-	int T = 0;
-	vi time, path, ret;
-	RMQ<int> rmq;
+void dfs_lca(int u, int p) {
+    up[0][u] = p;
+    for (int k = 1; k < LOG; k++) up[k][u] = up[k-1][up[k-1][u]];
+    for (int v : adj[u]) {
+        if (v == p) continue;
+        depth[v] = depth[u] + 1;
+        dfs_lca(v, u);
+    }
+}
 
-	LCA(vector<vi>& C) : time(sz(C)), rmq((dfs(C,0,-1), ret)) {}
-	void dfs(vector<vi>& C, int v, int par) {
-		time[v] = T++;
-		for (int y : C[v]) if (y != par) {
-			path.push_back(v), ret.push_back(time[v]);
-			dfs(C, y, v);
-		}
-	}
+void init_lca(int n, int root = 0) {
+    LOG = 1;
+    while ((1 << LOG) <= n) LOG++;
 
-	int lca(int a, int b) {
-		if (a == b) return a;
-		tie(a, b) = minmax(time[a], time[b]);
-		return path[rmq.query(a, b)];
-	}
-	//dist(a,b){return depth[a] + depth[b] - 2*depth[lca(a,b)];}
-};
+    up.assign(LOG, vi(n, root));
+    depth.assign(n, 0);
+    dfs_lca(root, root);
+}
+
+int kth_ancestor(int u, int k) {
+    for (int i = 0; i < LOG; i++) if(k >> i & 1) u = up[i][u];
+    return u;
+}
+
+int lca(int u, int v) {
+    i(depth[u] < depth[v]) swap(u, v);
+
+    u = kth_ancestor(u, depth[u] - depth[v]);
+    if(u == v) return u;
+
+    for(int k = LOG-1; k >= 0; k--) {
+        if(up[k][u] != up[k][v]) {
+            u = up[k][u];
+            v = up[k][v];
+        }
+    }
+    return up[0][u];
+}
+
+int dist(int u, int v) {
+    return depth[u] + depth[v] - 2 * depth[lca(u, v)];
+}
