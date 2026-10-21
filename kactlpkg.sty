@@ -193,6 +193,8 @@
 
 % Configure source code listings
 \lstset{language=C++}
+\lstset{keepspaces=true}
+\lstset{columns=flexible}
 \lstset{morekeywords={alignas,alignof}}
 \lstset{deletedirectives={line}}
 \lstset{frame=t}
@@ -201,7 +203,8 @@
 \lstset{breaklines=true}
 \lstset{basicstyle=\footnotesize\ttfamily}
 \lstset{commentstyle=\normalfont\itshape}
-\lstset{literate={^}{\caret}{1} {~}{\tilde}{1} {\{}{\nicelbrace}{1} {\}}{\nicerbrace}{1}}
+\lstset{literate={-}{{-}}1 {<}{\textless}1 {>}{\textgreater}1}
+% \lstset{literate={^}{\caret}{1} {~}{\tilde}{1} {\{}{\nicelbrace}{1} {\}}{\nicerbrace}{1}}
 \lstset{emptylines=*1}
 \lstset{inputencoding=utf8}
 \lstset{aboveskip=3pt}

@@ -183,7 +183,7 @@ def processwithcomments(caption, instream, outstream, listingslang):
 
 def processraw(caption, instream, outstream, listingslang = 'raw'):
     try:
-        source = instream.read().strip()
+        source = instream.read().rstrip()
         addref(caption, outstream)
         print(r"\rightcaption{%d lines}" % len(source.split("\n")), file=outstream)
         print(r"\begin{lstlisting}[language=%s,caption={%s}]" % (listingslang, pathescape(caption)), file=outstream)
