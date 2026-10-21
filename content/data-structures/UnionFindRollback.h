@@ -11,24 +11,22 @@
  */
 #pragma once
 
-struct RollbackUF {
-	vi e; vector<pii> st;
-	RollbackUF(int n) : e(n, -1) {}
-	int size(int x) { return -e[find(x)]; }
-	int find(int x) { return e[x] < 0 ? x : find(e[x]); }
-	int time() { return sz(st); }
-	void rollback(int t) {
-		for (int i = time(); i --> t;)
-			e[st[i].first] = st[i].second;
-		st.resize(t);
+vi par; vector<pii> st;
+void init(int n){ par.assign(n, -1); st.clear(); }
+int fpar(int x){ if(par[x]<0)return x; return fpar(par[x]); }
+int szz(int x){ return -par[fpar(x)]; } // CC Size
+int time(){ return st.size(); } // roll back to t=time()
+int roll(int t){ while(time() > t){
+		auto [x, val] = st.back(); st.pop_back();
+		par[x] = val;
 	}
-	bool join(int a, int b) {
-		a = find(a), b = find(b);
-		if (a == b) return false;
-		if (e[a] > e[b]) swap(a, b);
-		st.push_back({a, e[a]});
-		st.push_back({b, e[b]});
-		e[a] += e[b]; e[b] = a;
-		return true;
-	}
-};
+}
+bool join(int a, int b){
+	a = fpar(a), b = fpar(b);
+	if(a == b) return false;
+	if(par[a] > par[b]) swap(a, b);
+	st.push_back({a, par[a]});
+	st.push_back({b, par[b]});
+	par[a] += par[b], par[b] = a;
+	return true;
+}

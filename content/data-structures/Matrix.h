@@ -12,29 +12,38 @@
  */
 #pragma once
 
-template<class T, int N> struct Matrix {
-	typedef Matrix M;
-	array<array<T, N>, N> d{};
-	M operator*(const M& m) const {
-		M a;
-		rep(i,0,N) rep(j,0,N)
-			rep(k,0,N) a.d[i][k] += d[i][j] * m.d[j][k];
-		return a;
-	}
-	array<T, N> operator*(const array<T, N>& vec) const {
-		array<T, N> ret{};
-		rep(i,0,N) rep(j,0,N) ret[i] += d[i][j] * vec[j];
-		return ret;
-	}
-	M operator^(ll p) const {
-		assert(p >= 0);
-		M a, b(*this);
-		rep(i,0,N) a.d[i][i] = 1;
-		while (p) {
-			if (p&1) a = a*b;
-			b = b*b;
-			p >>= 1;
-		}
-		return a;
-	}
-};
+template<class T, int N>
+using Mat = array<array<T, N>, N>;
+
+template<class T, int N> // V * V
+Mat<T, N> mul(Mat<T, N> a, Mat<T, N> b) {
+    Mat<T, N> c{};
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+            for (int k = 0; k < N; k++)
+                c[i][k] += a[i][j] * b[j][k];
+    return c;
+}
+
+template<class T, int N> // V * ar
+array<T, N> mul(Mat<T, N> a, array<T, N> v) {
+    array<T, N> res{};
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+            res[i] += a[i][j] * v[j];
+    return res;
+}
+
+template<class T, int N> // matrix pow
+Mat<T, N> mpow(Mat<T, N> a, ll p) {
+    assert(p >= 0);
+    Mat<T, N> res{};
+    for (int i = 0; i < N; i++)
+        res[i][i] = 1;
+    while (p) {
+        if (p & 1) res = mul<T, N>(res, a);
+        a = mul<T, N>(a, a);
+        p >>= 1;
+    }
+    return res;
+}

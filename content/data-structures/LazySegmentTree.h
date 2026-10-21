@@ -12,55 +12,32 @@
  */
 #pragma once
 
-#include "../various/BumpAllocator.h"
-
-const int inf = 1e9;
-struct Node {
-	Node *l = 0, *r = 0;
-	int lo, hi, mset = inf, madd = 0, val = -inf;
-	Node(int lo,int hi):lo(lo),hi(hi){} // Large interval of -inf
-	Node(vi& v, int lo, int hi) : lo(lo), hi(hi) {
-		if (lo + 1 < hi) {
-			int mid = lo + (hi - lo)/2;
-			l = new Node(v, lo, mid); r = new Node(v, mid, hi);
-			val = max(l->val, r->val);
-		}
-		else val = v[lo];
+const int MX = 2e5 + 5;
+struct node{ ll val = 0; };
+node tree[4 * MX], lazy[4 * MX];
+void push(int nd, int l, int r){
+	if(lazy[nd].val != 0){
+		tree[nd].val += lazy[nd].val * (r - l + 1);
+		if(l != r){
+			lazy[nd * 2].val += lazy[nd].val; 
+			lazy[nd * 2 + 1].val += lazy[nd].val;}
+		lazy[nd].val = 0;
 	}
-	int query(int L, int R) {
-		if (R <= lo || hi <= L) return -inf;
-		if (L <= lo && hi <= R) return val;
-		push();
-		return max(l->query(L, R), r->query(L, R));
-	}
-	void set(int L, int R, int x) {
-		if (R <= lo || hi <= L) return;
-		if (L <= lo && hi <= R) mset = val = x, madd = 0;
-		else {
-			push(), l->set(L, R, x), r->set(L, R, x);
-			val = max(l->val, r->val);
-		}
-	}
-	void add(int L, int R, int x) {
-		if (R <= lo || hi <= L) return;
-		if (L <= lo && hi <= R) {
-			if (mset != inf) mset += x;
-			else madd += x;
-			val += x;
-		}
-		else {
-			push(), l->add(L, R, x), r->add(L, R, x);
-			val = max(l->val, r->val);
-		}
-	}
-	void push() {
-		if (!l) {
-			int mid = lo + (hi - lo)/2;
-			l = new Node(lo, mid); r = new Node(mid, hi);
-		}
-		if (mset != inf)
-			l->set(lo,hi,mset), r->set(lo,hi,mset), mset = inf;
-		else if (madd)
-			l->add(lo,hi,madd), r->add(lo,hi,madd), madd = 0;
-	}
-};
+}
+void update(int nd, int l, int r, int ql, int qr, int v){
+	if(l > qr || r < ql) return;
+	push(nd, l, r);
+	if(l >= ql && r <= qr){ lazy[nd].val += v; return; }
+	int m = (l + r) >> 1; 
+	update(nd * 2, l, m, ql, qr, v);
+	update(nd * 2 + 1, m + 1, r, ql, qr, v);
+	tree[nd].val = tree[nd * 2].val + tree[nd * 2 + 1].val;
+}
+int query(int nd, int l, int r, int ql, int qr){
+	if(l > qr || r < ql) return 0;
+	push(nd, l, r);
+	if(l >= ql && r <= qr) return tree[nd].val;
+	int m = (l + r) >> 1;
+	return query(nd * 2, l, m, ql, qr) + 
+		   query(nd * 2 + 1, m + 1, r, ql, qr);
+}
