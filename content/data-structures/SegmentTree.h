@@ -11,7 +11,7 @@
 #pragma once
 
 const int MX = 2e5 + 5;
-struct node{ int val = 0; };
+struct node{ int val = 0; struct node *L = NULL, *R = NULL; };
 node tree[4 * MX];
 int arr[MX];
 void update(int nd, int l, int r, int p, int v){
